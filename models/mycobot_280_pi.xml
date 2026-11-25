@@ -1,0 +1,93 @@
+<!-- myCobot 280 (PI) for MuJoCo.
+     Kinematics and meshes generated from Elephant Robotics' official URDF
+     (github.com/elephantrobotics/mycobot_ros, BSD 3-Clause, see LICENSE_mycobot_ros).
+     Joint angles are in radians and match the real robot's angle convention:
+     degrees(qpos) is what pymycobot's send_angles() expects. -->
+<mujoco model="mycobot_280_pi">
+  <compiler angle="radian" meshdir="meshes_pi" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast"/>
+
+  <visual>
+    <global offwidth="1280" offheight="960"/>
+    <headlight ambient="0.35 0.35 0.35" diffuse="0.6 0.6 0.6"/>
+  </visual>
+
+  <default>
+    <default class="servo">
+      <joint damping="0.4" armature="0.01" frictionloss="0.01"/>
+      <position kp="60" kv="1.5" forcerange="-6 6"/>
+    </default>
+    <!-- Robot links collide with the floor and objects, but not with each other -->
+    <default class="link">
+      <geom type="mesh" contype="2" conaffinity="1" density="800"/>
+    </default>
+  </default>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" rgb1="0.82 0.84 0.87" rgb2="0.74 0.76 0.8"
+             width="512" height="512"/>
+    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.05"/>
+    <mesh name="g_base" file="G_base.stl" inertia="convex"/>
+    <mesh name="joint1" file="joint1_pi.stl" inertia="convex"/>
+    <mesh name="joint2" file="joint2.stl" inertia="convex"/>
+    <mesh name="joint3" file="joint3.stl" inertia="convex"/>
+    <mesh name="joint4" file="joint4.stl" inertia="convex"/>
+    <mesh name="joint5" file="joint5.stl" inertia="convex"/>
+    <mesh name="joint6" file="joint6.stl" inertia="convex"/>
+    <mesh name="joint6_flange" file="joint7.stl" inertia="convex"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0.4 -0.4 1.2" dir="-0.3 0.3 -1" diffuse="0.6 0.6 0.6"/>
+    <geom name="floor" type="plane" size="1 1 0.05" material="grid" pos="0 0 -0.03"
+          contype="1" conaffinity="3"/>
+    <!-- Target marker: move it with data.mocap_pos (visual only) -->
+    <body name="target" mocap="true" pos="0.15 -0.1 0.2">
+      <geom type="sphere" size="0.012" rgba="1 0.2 0.2 0.6" contype="0" conaffinity="0"/>
+    </body>
+    <body name="g_base" pos="0 0 0">
+      <geom class="link" mesh="g_base" pos="0 0 -0.03" quat="0.707105 0 0 0.707108" rgba="0.15 0.15 0.17 1"/>
+      <body name="joint1" pos="0 0 0" quat="1 0 0 0" gravcomp="1">
+        <geom class="link" mesh="joint1" pos="0 0 0" quat="1 0 0 0" rgba="0.92 0.92 0.92 1"/>
+        <body name="joint2" pos="0 0 0.13956" quat="1 0 0 0" gravcomp="1">
+          <joint name="joint1" class="servo" axis="0 0 1" range="-2.9321 2.9321"/>
+          <geom class="link" mesh="joint2" pos="0 0 -0.06096" quat="0.707105 0 0 -0.707108" rgba="0.92 0.92 0.92 1"/>
+          <body name="joint3" pos="0 0 -0.001" quat="0.499998 0.500002 0.5 -0.5" gravcomp="1">
+            <joint name="joint2" class="servo" axis="0 0 1" range="-2.4434 2.4434"/>
+            <geom class="link" mesh="joint3" pos="0 0 0.03256" quat="0.707105 0 -0.707108 0" rgba="0.92 0.92 0.92 1"/>
+            <body name="joint4" pos="-0.1104 0 0" quat="1 0 0 0" gravcomp="1">
+              <joint name="joint3" class="servo" axis="0 0 1" range="-2.6179 2.6179"/>
+              <geom class="link" mesh="joint4" pos="0 0 0.03056" quat="0.707105 0 -0.707108 0" rgba="0.92 0.92 0.92 1"/>
+              <body name="joint5" pos="-0.096 0 0.06462" quat="0.707105 0 0 -0.707108" gravcomp="1">
+                <joint name="joint4" class="servo" axis="0 0 1" range="-2.6179 2.6179"/>
+                <geom class="link" mesh="joint5" pos="0 0 -0.03356" quat="0.707105 -0.707108 0 0" rgba="0.92 0.92 0.92 1"/>
+                <body name="joint6" pos="0 -0.07318 -0.001" quat="0.499998 0.5 -0.5 0.500002" gravcomp="1">
+                  <joint name="joint5" class="servo" axis="0 0 1" range="-2.7052 2.7925"/>
+                  <geom class="link" mesh="joint6" pos="0 0 -0.038" quat="1 0 0 0" rgba="0.92 0.92 0.92 1"/>
+                  <body name="joint6_flange" pos="0 0.0456 0" quat="0.707105 -0.707108 0 0" gravcomp="1">
+                    <joint name="joint6" class="servo" axis="0 0 1" range="-3.1400 3.1416"/>
+                    <geom class="link" mesh="joint6_flange" pos="0 0 -0.012" quat="1 0 0 0" rgba="0.92 0.92 0.92 1"/>
+                    <site name="tip" size="0.006" rgba="0 0.6 1 1"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="joint1" joint="joint1" class="servo" ctrlrange="-2.9321 2.9321"/>
+    <position name="joint2" joint="joint2" class="servo" ctrlrange="-2.4434 2.4434"/>
+    <position name="joint3" joint="joint3" class="servo" ctrlrange="-2.6179 2.6179"/>
+    <position name="joint4" joint="joint4" class="servo" ctrlrange="-2.6179 2.6179"/>
+    <position name="joint5" joint="joint5" class="servo" ctrlrange="-2.7052 2.7925"/>
+    <position name="joint6" joint="joint6" class="servo" ctrlrange="-3.1400 3.1416"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 0 0 0 0 0" ctrl="0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>
